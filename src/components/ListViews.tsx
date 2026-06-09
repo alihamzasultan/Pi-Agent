@@ -115,16 +115,13 @@ export const IntakeCasesListView: React.FC<IntakeCasesListProps> = ({ cases, onS
           <tbody>
             {filteredCases.length === 0 ? (
               <tr>
-                <td colSpan={7} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                <td colSpan={4} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
                   No intake cases found matching the criteria.
                 </td>
               </tr>
             ) : (
               filteredCases.map((c, i) => {
                 const date = c.created_at ? new Date(c.created_at).toLocaleDateString() : "Pending";
-                const isSigned = c.retainer_signed_at || c.docuseal_status === "Completed";
-                const isSent = c.retainer_sent_at || c.docuseal_status === "Sent";
-
                 return (
                   <tr key={i} onClick={() => onSelectCase(c)} style={{ cursor: "pointer" }}>
                     <td>
@@ -143,33 +140,6 @@ export const IntakeCasesListView: React.FC<IntakeCasesListProps> = ({ cases, onS
                     </td>
                     <td style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>{date}</td>
                     <td><ViabilityRing score={c.viability_score} /></td>
-                    <td style={{ fontSize: "0.85rem" }}>
-                      <div style={{ display: "flex", flexDirection: "column" }}>
-                        <span style={{ color: "var(--text-primary)" }}>{c.liability_assessment || "Pending AI"}</span>
-                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "160px" }}>
-                          {c.liability_reason || "Extracting details..."}
-                        </span>
-                      </div>
-                    </td>
-                    <td><ActionBadge action={c.recommended_action} /></td>
-                    <td>
-                      <div style={{ display: "flex", gap: "6px" }}>
-                        {c.clio_matter_id ? (
-                          <span className="badge badge-success" title="Clio Synced">Clio</span>
-                        ) : c.clio_contact_id ? (
-                          <span className="badge badge-warning" title="Clio Contact Created">Clio Contact</span>
-                        ) : (
-                          <span className="badge badge-danger" style={{ opacity: 0.4 }} title="Not in Clio">Clio</span>
-                        )}
-                        {isSigned ? (
-                          <span className="badge badge-success" title="Retainer Signed">Retained</span>
-                        ) : isSent ? (
-                          <span className="badge badge-warning" title="Retainer Sent">Sent</span>
-                        ) : (
-                          <span className="badge badge-danger" style={{ opacity: 0.4 }} title="No Retainer">Retainer</span>
-                        )}
-                      </div>
-                    </td>
                   </tr>
                 );
               })
@@ -453,7 +423,7 @@ export const ClioRecordsListView: React.FC<ClioRecordsListProps> = ({ clioRecord
           <tbody>
             {records.length === 0 ? (
               <tr>
-                <td colSpan={8} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                <td colSpan={5} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
                   No Clio contact or matter sync records found.
                 </td>
               </tr>
@@ -551,14 +521,42 @@ export const ClioRecordsListView: React.FC<ClioRecordsListProps> = ({ clioRecord
 
 
 // --- 4. Docuseal Retainers ListView ---
+type DocusealRetainerRow = DocusealRetainer & {
+  docuseal_submission_id?: string | number | null;
+  docuseal_status?: string | null;
+  docuseal_document_url?: string | null;
+  retainer_sent_at?: string | null;
+  retainer_signed_at?: string | null;
+  client_name?: string | null;
+  client_email?: string | null;
+
+  // Fallbacks in case older frontend/service mapping still returns these names
+  submission_id?: string | number | null;
+  status?: string | null;
+  document_url?: string | null;
+  sent_at?: string | null;
+  completed_at?: string | null;
+};
+
 interface DocusealRetainersListProps {
   retainers: DocusealRetainer[];
 }
 
+const getRetainerStatusBadgeClass = (status: string): string => {
+  const normalized = status.toLowerCase();
+
+  if (normalized === "completed" || normalized === "signed") return "badge-success";
+  if (normalized === "sent" || normalized === "pending") return "badge-warning";
+
+  return "badge-danger";
+};
+
 export const DocusealRetainersListView: React.FC<DocusealRetainersListProps> = ({ retainers }) => {
   return (
     <div className="glass-card table-responsive" style={{ padding: "24px" }}>
-      <h2 style={{ fontSize: "1.25rem", color: "var(--text-primary)", marginBottom: "20px" }}>Docuseal Retainer Agreement Tracking</h2>
+      <h2 style={{ fontSize: "1.25rem", color: "var(--text-primary)", marginBottom: "20px" }}>
+        Docuseal Retainer Agreement Tracking
+      </h2>
 
       {/* Desktop Table */}
       <div className="table-container">
@@ -582,28 +580,45 @@ export const DocusealRetainersListView: React.FC<DocusealRetainersListProps> = (
                 </td>
               </tr>
             ) : (
-              retainers.map((ret, idx) => {
-                const sentDate = ret.sent_at ? new Date(ret.sent_at).toLocaleString() : "—";
-                const signDate = ret.completed_at ? new Date(ret.completed_at).toLocaleString() : "—";
-                const isSigned = ret.status === "completed" || ret.status === "signed";
+              retainers.map((retainer, idx) => {
+                const ret = retainer as DocusealRetainerRow;
+
+                const submissionId = ret.docuseal_submission_id || ret.submission_id || "—";
+                const status = ret.docuseal_status || ret.status || "Pending";
+                const documentUrl = ret.docuseal_document_url || ret.document_url || "";
+                const sentAt = ret.retainer_sent_at || ret.sent_at || "";
+                const signedAt = ret.retainer_signed_at || ret.completed_at || "";
+
+                const sentDate = sentAt ? new Date(sentAt).toLocaleString() : "—";
+                const signDate = signedAt ? new Date(signedAt).toLocaleString() : "—";
+                const badgeClass = getRetainerStatusBadgeClass(String(status));
 
                 return (
                   <tr key={idx}>
-                    <td><span style={{ fontWeight: 600 }}>{ret.client_name || "Unknown"}</span></td>
-                    <td style={{ fontSize: "0.85rem" }}>{ret.client_email || "—"}</td>
-                    <td style={{ fontSize: "0.85rem", fontFamily: "monospace", color: "var(--text-muted)" }}>{ret.submission_id || "—"}</td>
                     <td>
-                      <span className={`badge ${isSigned ? "badge-success" : ret.status === "sent" ? "badge-warning" : "badge-danger"}`}>
-                        {ret.status || "Pending"}
-                      </span>
+                      <span style={{ fontWeight: 600 }}>{ret.client_name || "Unknown"}</span>
+                    </td>
+                    <td style={{ fontSize: "0.85rem" }}>{ret.client_email || "—"}</td>
+                    <td style={{ fontSize: "0.85rem", fontFamily: "monospace", color: "var(--text-muted)" }}>
+                      {submissionId}
+                    </td>
+                    <td>
+                      <span className={`badge ${badgeClass}`}>{status}</span>
                     </td>
                     <td style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>{sentDate}</td>
                     <td style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>{signDate}</td>
                     <td>
-                      {ret.document_url ? (
-                        <a href={ret.document_url} target="_blank" rel="noopener noreferrer" className="btn-secondary"
-                          style={{ padding: "6px 12px", fontSize: "0.75rem", display: "inline-flex", gap: "6px" }}>
-                          <FileText size={12} /><span>View PDF</span><ExternalLink size={10} />
+                      {documentUrl ? (
+                        <a
+                          href={documentUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-secondary"
+                          style={{ padding: "6px 12px", fontSize: "0.75rem", display: "inline-flex", gap: "6px" }}
+                        >
+                          <FileText size={12} />
+                          <span>View PDF</span>
+                          <ExternalLink size={10} />
                         </a>
                       ) : (
                         <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>No document</span>
@@ -620,37 +635,62 @@ export const DocusealRetainersListView: React.FC<DocusealRetainersListProps> = (
       {/* Mobile Card Rows */}
       <div className="mobile-card-rows">
         {retainers.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>No retainer documents.</div>
+          <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+            No retainer documents.
+          </div>
         ) : (
-          retainers.map((ret, idx) => {
-            const sentDate = ret.sent_at ? new Date(ret.sent_at).toLocaleString() : "—";
-            const signDate = ret.completed_at ? new Date(ret.completed_at).toLocaleString() : "—";
-            const isSigned = ret.status === "completed" || ret.status === "signed";
+          retainers.map((retainer, idx) => {
+            const ret = retainer as DocusealRetainerRow;
+
+            const status = ret.docuseal_status || ret.status || "Pending";
+            const documentUrl = ret.docuseal_document_url || ret.document_url || "";
+            const sentAt = ret.retainer_sent_at || ret.sent_at || "";
+            const signedAt = ret.retainer_signed_at || ret.completed_at || "";
+
+            const sentDate = sentAt ? new Date(sentAt).toLocaleString() : "—";
+            const signDate = signedAt ? new Date(signedAt).toLocaleString() : "—";
+            const badgeClass = getRetainerStatusBadgeClass(String(status));
 
             return (
               <div key={idx} className="mobile-row-card" style={{ cursor: "default" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                   <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{ret.client_name || "Unknown"}</span>
-                  <span className={`badge ${isSigned ? "badge-success" : ret.status === "sent" ? "badge-warning" : "badge-danger"}`}>
-                    {ret.status || "Pending"}
-                  </span>
+                  <span className={`badge ${badgeClass}`}>{status}</span>
                 </div>
+
                 <div className="mobile-row-field">
                   <span className="mobile-row-label">Email</span>
-                  <span className="mobile-row-value" style={{ fontSize: "0.8rem" }}>{ret.client_email || "—"}</span>
+                  <span className="mobile-row-value" style={{ fontSize: "0.8rem" }}>
+                    {ret.client_email || "—"}
+                  </span>
                 </div>
+
+                <div className="mobile-row-field">
+                  <span className="mobile-row-label">Submission ID</span>
+                  <span className="mobile-row-value" style={{ fontFamily: "monospace", fontSize: "0.8rem" }}>
+                    {ret.docuseal_submission_id || ret.submission_id || "—"}
+                  </span>
+                </div>
+
                 <div className="mobile-row-field">
                   <span className="mobile-row-label">Sent</span>
                   <span className="mobile-row-value" style={{ fontSize: "0.8rem" }}>{sentDate}</span>
                 </div>
+
                 <div className="mobile-row-field">
                   <span className="mobile-row-label">Signed</span>
                   <span className="mobile-row-value" style={{ fontSize: "0.8rem" }}>{signDate}</span>
                 </div>
-                {ret.document_url && (
+
+                {documentUrl && (
                   <div style={{ marginTop: "8px" }}>
-                    <a href={ret.document_url} target="_blank" rel="noopener noreferrer" className="btn-secondary"
-                      style={{ width: "100%", justifyContent: "center", padding: "8px", fontSize: "0.8rem", textDecoration: "none" }}>
+                    <a
+                      href={documentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-secondary"
+                      style={{ width: "100%", justifyContent: "center", padding: "8px", fontSize: "0.8rem", textDecoration: "none" }}
+                    >
                       <FileText size={14} /> View Retainer PDF <ExternalLink size={10} />
                     </a>
                   </div>
