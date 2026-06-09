@@ -30,8 +30,8 @@ export const App: React.FC = () => {
   const [selectedCase, setSelectedCase] = useState<IntakeCase | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [isSimulating, setIsSimulating] = useState<boolean>(false);
-  const [simStep, setSimStep] = useState<string>("");
+  const [isSimulating] = useState<boolean>(false);
+  const [simStep] = useState<string>("");
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
