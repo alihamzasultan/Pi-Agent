@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabaseService } from "./services/supabase";
 import type { IntakeCase, CallLog, ClioRecord, DocusealRetainer } from "./services/supabase";
-import * as mock from "./services/mockData";
 import KPICard from "./components/KPICard";
 import AnalyticsCharts from "./components/AnalyticsCharts";
 import RetainerAgreementDashboard from "./components/RetainerAgreementDashboard";
@@ -9,7 +8,7 @@ import { IntakeCasesListView, CallLogsListView, ClioRecordsListView, DocusealRet
 import CaseDetailDrawer from "./components/CaseDetailDrawer";
 import {
   LayoutDashboard, Users, Link2, FileSignature,
-  Database, ToggleLeft, ToggleRight, PhoneCall as PhoneIcon,
+  Database, PhoneCall as PhoneIcon,
   RefreshCw, AlertCircle, Sparkles, Menu, X as CloseIcon,
   Sun, Moon
 } from "lucide-react";
@@ -24,7 +23,6 @@ const getInitialTheme = (): Theme => {
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"dashboard" | "cases" | "calls" | "clio" | "docuseal">("dashboard");
-  const [isLiveMode, setIsLiveMode] = useState<boolean>(true);
   const [cases, setCases] = useState<IntakeCase[]>([]);
   const [logs, setLogs] = useState<CallLog[]>([]);
   const [clio, setClio] = useState<ClioRecord[]>([]);
@@ -46,23 +44,17 @@ export const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      if (isLiveMode) {
-        const [casesData, logsData, clioData, retainersData] = await Promise.all([
-          supabaseService.fetchIntakeCases(),
-          supabaseService.fetchCallLogs(),
-          supabaseService.fetchClioRecords(),
-          supabaseService.fetchDocusealRetainers()
-        ]);
-        setCases(casesData);
-        setLogs(logsData);
-        setClio(clioData);
-        setRetainers(retainersData);
-      } else {
-        setCases(mock.MOCK_INTAKE_CASES);
-        setLogs(mock.MOCK_CALL_LOGS);
-        setClio(mock.MOCK_CLIO_RECORDS);
-        setRetainers(mock.MOCK_DOCUSEAL_RETAINERS);
-      }
+      const [casesData, logsData, clioData, retainersData] = await Promise.all([
+        supabaseService.fetchIntakeCases(),
+        supabaseService.fetchCallLogs(),
+        supabaseService.fetchClioRecords(),
+        supabaseService.fetchDocusealRetainers()
+      ]);
+
+      setCases(casesData);
+      setLogs(logsData);
+      setClio(clioData);
+      setRetainers(retainersData);
     } catch (err: any) {
       console.error(err);
       setError(`Failed to fetch database records: ${err.message || err}`);
@@ -71,73 +63,16 @@ export const App: React.FC = () => {
     }
   };
 
-  useEffect(() => { loadData(); }, [isLiveMode]);
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const handleUpdateCase = async (updatedCase: IntakeCase) => {
     const nextCases = cases.map(c => c.call_id === updatedCase.call_id ? updatedCase : c);
     setCases(nextCases);
     if (selectedCase && selectedCase.call_id === updatedCase.call_id) setSelectedCase(updatedCase);
 
-    if (updatedCase.clio_matter_id) {
-      const existingClio = clio.find(r => r.call_id === updatedCase.call_id);
-      if (!existingClio) {
-        const newClioRecord: ClioRecord = {
-          id: "clio-" + Math.floor(Math.random() * 10000),
-          call_id: updatedCase.call_id,
-          client_name: updatedCase.client_name,
-          phone: updatedCase.phone || updatedCase.customer_number,
-          clio_contact_id: updatedCase.clio_contact_id,
-          clio_contact_response: '{"status":"ok"}',
-          clio_matter_id: updatedCase.clio_matter_id,
-          clio_matter_status: updatedCase.clio_matter_status || "Open",
-          clio_matter_description: updatedCase.incident_summary,
-          practice_area: "Motor Vehicle Accident",
-          clio_matter_response: '{"status":"ok"}',
-          clio_note_id: "clio-note-auto",
-          clio_note_subject: "AI Intake Memo Summary",
-          clio_note_detail: updatedCase.case_evaluation_memo,
-          clio_note_response: '{"status":"ok"}',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setClio([newClioRecord, ...clio]);
-      }
-    }
-
-    if (updatedCase.docuseal_status) {
-      const existingRet = retainers.find(r => r.call_id === updatedCase.call_id);
-      if (!existingRet) {
-        const newRetainer: DocusealRetainer = {
-          id: "ret-" + Math.floor(Math.random() * 10000),
-          call_id: updatedCase.call_id,
-          clio_matter_id: updatedCase.clio_matter_id,
-          client_name: updatedCase.client_name,
-          client_email: `${(updatedCase.client_name || "client").toLowerCase().replace(/\s+/g, ".")}@example.com`,
-          template_id: "tmpl_pi_retainer_v2",
-          submission_id: updatedCase.docuseal_submission_id,
-          external_id: `${updatedCase.call_id}-ret`,
-          status: updatedCase.docuseal_status.toLowerCase(),
-          sent_at: updatedCase.retainer_sent_at,
-          completed_at: updatedCase.retainer_signed_at,
-          expire_at: null,
-          document_url: updatedCase.docuseal_document_url,
-          audit_log_url: "https://docuseal.com/audit/" + updatedCase.docuseal_submission_id,
-          docuseal_response: '{"status":"ok"}',
-          webhook_payload: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setRetainers([newRetainer, ...retainers]);
-      } else {
-        setRetainers(retainers.map(r =>
-          r.call_id === updatedCase.call_id
-            ? { ...r, status: updatedCase.docuseal_status!.toLowerCase(), completed_at: updatedCase.retainer_signed_at }
-            : r
-        ));
-      }
-    }
-
-    if (isLiveMode && updatedCase.id !== null) {
+    if (updatedCase.id !== null) {
       try {
         await supabaseService.updateIntakeCase(updatedCase.call_id, {
           recommended_action: updatedCase.recommended_action,
@@ -157,9 +92,11 @@ export const App: React.FC = () => {
           sms_message: updatedCase.sms_message,
           sms_sent_at: updatedCase.sms_sent_at
         });
+
+        await loadData();
       } catch (err) {
         console.error("DB write error:", err);
-        setError("Unable to save changes to Supabase database. Working locally.");
+        setError("Unable to save changes to Supabase database.");
       }
     }
   };
@@ -243,8 +180,8 @@ export const App: React.FC = () => {
 
         <div className="sidebar-footer">
           <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.75rem", color: "var(--text-secondary)" }}>
-            <Database size={12} style={{ color: isLiveMode ? "var(--status-success)" : "var(--status-warning)" }} />
-            <span>Mode: {isLiveMode ? "Supabase Live" : "Demo Sandbox"}</span>
+            <Database size={12} style={{ color: "var(--status-success)" }} />
+            <span>Mode: Supabase Live</span>
           </div>
         </div>
       </aside>
@@ -278,17 +215,6 @@ export const App: React.FC = () => {
             >
               {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
             </button>
-
-            {/* Live DB Toggle */}
-            <div className="header-control-pill">
-              <span className="header-demo-label" style={{ fontSize: "0.73rem", color: isLiveMode ? "var(--text-secondary)" : "var(--text-primary)", fontWeight: 500 }}>Demo</span>
-              <button onClick={() => setIsLiveMode(!isLiveMode)} style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", display: "flex", alignItems: "center" }}>
-                {isLiveMode
-                  ? <ToggleRight size={24} style={{ color: "var(--status-success)" }} />
-                  : <ToggleLeft size={24} style={{ color: "var(--text-muted)" }} />}
-              </button>
-              <span className="header-live-label" style={{ fontSize: "0.73rem", color: isLiveMode ? "var(--status-success)" : "var(--text-secondary)", fontWeight: 600 }}>Live DB</span>
-            </div>
 
             {/* Simulate */}
             {/* <button
