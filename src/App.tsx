@@ -314,7 +314,7 @@ export const App: React.FC = () => {
                       trend={{ value: "Live Supabase", positive: true }}
                       glowColor="rgba(0,242,254,0.12)"
                     />
-                    <KPICard
+                    {/* <KPICard
                       title="Signed Cases"
                       value={`${stats.signedCases} (${conversionRate}%)`}
                       icon="FileSignature"
@@ -327,7 +327,7 @@ export const App: React.FC = () => {
                       icon="Link2"
                       trend={{ value: `${stats.clioSyncs}/${stats.totalLeads} leads synced`, positive: true }}
                       glowColor="rgba(79,172,254,0.12)"
-                    />
+                    /> */}
                 
                   </div>
 
