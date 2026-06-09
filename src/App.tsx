@@ -328,13 +328,7 @@ export const App: React.FC = () => {
                       trend={{ value: `${stats.clioSyncs}/${stats.totalLeads} leads synced`, positive: true }}
                       glowColor="rgba(79,172,254,0.12)"
                     />
-                    <KPICard
-                      title="Vapi Billing Total"
-                      value={`$${stats.totalCost}`}
-                      icon="PhoneCall"
-                      trend={{ value: `Avg $${stats.avgCallCost}/call`, positive: true }}
-                      glowColor="rgba(139,92,246,0.12)"
-                    />
+                
                   </div>
 
                   <AnalyticsCharts cases={cases} />
