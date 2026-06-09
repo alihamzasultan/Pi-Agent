@@ -136,13 +136,13 @@ export const App: React.FC = () => {
     avgCallCost: avgCallCost.toFixed(2)
   };
 
-  const conversionRate = stats.totalLeads
-    ? Math.round((stats.signedCases / stats.totalLeads) * 100)
-    : 0;
+  // const conversionRate = stats.totalLeads
+  //   ? Math.round((stats.signedCases / stats.totalLeads) * 100)
+  //   : 0;
 
-  const clioSyncRate = stats.totalLeads
-    ? Math.round((stats.clioSyncs / stats.totalLeads) * 100)
-    : 0;
+  // const clioSyncRate = stats.totalLeads
+  //   ? Math.round((stats.clioSyncs / stats.totalLeads) * 100)
+  //   : 0;
 
   const navItems = [
     { id: "dashboard", label: "Dashboard Hub", icon: <LayoutDashboard size={18} /> },
