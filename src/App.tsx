@@ -8,7 +8,7 @@ import RetainerAgreementDashboard from "./components/RetainerAgreementDashboard"
 import { IntakeCasesListView, CallLogsListView, ClioRecordsListView, DocusealRetainersListView } from "./components/ListViews";
 import CaseDetailDrawer from "./components/CaseDetailDrawer";
 import {
-  LayoutDashboard, Users, PhoneCall, Link2, FileSignature,
+  LayoutDashboard, Users, Link2, FileSignature,
   Database, ToggleLeft, ToggleRight, PhoneCall as PhoneIcon,
   RefreshCw, AlertCircle, Sparkles, Menu, X as CloseIcon,
   Sun, Moon
@@ -164,89 +164,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleSimulateCall = () => {
-    setIsSimulating(true);
-    setSimStep("Inbound call routing through Vapi...");
-    setTimeout(() => setSimStep("AI Intake Assistant collecting case details..."), 1500);
-    setTimeout(() => setSimStep("AI extracting facts & assessing liability..."), 3200);
-    setTimeout(async () => {
-      const names = ["Alexander Hamilton", "Victoria Justice", "Thomas Jefferson", "Gwen Stacy", "Bruce Wayne"];
-      const selectedName = names[Math.floor(Math.random() * names.length)];
-      const randomPhone = `+1512555${Math.floor(1000 + Math.random() * 9000)}`;
-      const callId = "sim-call-" + Math.floor(Math.random() * 1000000);
-      const summaries = [
-        "Rear-ended by a cement truck on IH-35. Severe back and neck injuries. Police ticketed the truck driver.",
-        "Slipped on spilled milk at a supermarket aisle. Severely sprained wrist and bruised shoulder. Report filed.",
-        "Struck by an SUV while in a pedestrian crosswalk. Fractured tibia requiring leg cast. Driver cited.",
-        "Bitten by an unleashed dog at Zilker Park. Deep lacerations on forearm requiring stitches. Owner identified."
-      ];
-      const selectedSummary = summaries[Math.floor(Math.random() * summaries.length)];
 
-      const newCase: IntakeCase = {
-        id: isLiveMode ? null : "sim-case-" + Math.floor(Math.random() * 10000),
-        call_id: callId, call_type: "Inbound", call_status: "Completed",
-        call_started_at: new Date().toISOString(),
-        call_ended_at: new Date(Date.now() + 320000).toISOString(),
-        call_duration_seconds: "320", ended_reason: "Completed",
-        client_name: selectedName, phone: randomPhone, customer_number: randomPhone,
-        transcript: `AI: Hello. This is Alex with Harrington Law. How can I help you?\nUser: Hi, my name is ${selectedName}. I was in an accident just now. ${selectedSummary}\nAI: Oh no! Are you okay? Did you see a doctor?\nUser: Yes, I am heading to the doctor now. I have some medical notes.\nAI: Great, we will assess your case and help you.`,
-        recording_url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-        stereo_recording_url: null, log_url: null,
-        accident_date: new Date().toISOString().split("T")[0],
-        incident_summary: selectedSummary, police_report: "Yes - report filed.",
-        medical_documentation: "Yes - scheduling treatment.",
-        insurance_status: "Yes - commercial liability coverage.",
-        at_fault: "No - client hit by negligent third party.",
-        case_evaluation_memo: `### CASE EVALUATION MEMO\n\n**Client Name**: ${selectedName}\n**Accident Date**: Today\n**Incident Summary**: ${selectedSummary}\n**Liability**: Clear liability on third party.\n**Coverage**: Commercial insurance policy limits.\n**Recommendation**: Accept case. Send Docuseal retainer immediately.`,
-        liability_assessment: "Clear Liability",
-        liability_reason: "Negligent third party violation of traffic/safety regulations.",
-        viability_score: String(Math.floor(75 + Math.random() * 23)),
-        recommended_action: "Accept Case - Send Retainer", extraction_status: "Completed",
-        clio_contact_id: null, clio_matter_id: null, clio_matter_status: null, clio_note_id: null,
-        sms_message: null, sms_status: null, sms_sent_at: null,
-        docuseal_submission_id: null, docuseal_status: null, docuseal_document_url: null,
-        docuseal_audit_log_url: null, retainer_sent_at: null, retainer_signed_at: null,
-        slack_status: "Sent",
-        slack_message: `🚨 AI INTAKE ALERT: New highly viable case for ${selectedName}. Score: 85+. Details extracted.`,
-        slack_sent_at: new Date().toISOString(),
-        created_at: new Date().toISOString(), updated_at: new Date().toISOString(), raw_payload: null
-      };
-
-      const newLog: CallLog = {
-        id: "log-" + Math.floor(Math.random() * 10000), call_id: callId,
-        assistant_id: "asst-alex-pi", assistant_name: "Alex - PI Intake",
-        phone_number_id: "phone-123", inbound_number: "+18005550100",
-        customer_number: randomPhone, started_at: new Date().toISOString(),
-        ended_at: new Date().toISOString(), duration_seconds: "320", duration_minutes: "5.3",
-        ended_reason: "Completed", transcript: newCase.transcript, summary: selectedSummary,
-        recording_url: newCase.recording_url, stereo_recording_url: null, pcap_url: null,
-        log_url: "https://vapi.ai/logs/" + callId,
-        cost: "0.58", stt_cost: "0.05", llm_cost: "0.15", tts_cost: "0.24",
-        vapi_cost: "0.14", total_cost: "0.58", model_name: "gpt-4o",
-        voice_provider: "Cartesia", voice_id: "sheriff-male",
-        transcriber_provider: "Deepgram", transcriber_model: "nova-2",
-        raw_payload: null, created_at: new Date().toISOString()
-      };
-
-      if (isLiveMode) {
-        try {
-          const insertedCase = await supabaseService.createIntakeCase(newCase);
-          setCases([insertedCase || newCase, ...cases]);
-        } catch (err: any) {
-          console.error("DB insert error:", err);
-          setError("Failed to sync new simulated call to Supabase. Appended locally.");
-          setCases([newCase, ...cases]);
-        }
-      } else {
-        setCases([newCase, ...cases]);
-      }
-
-      setLogs([newLog, ...logs]);
-      setIsSimulating(false);
-      setSimStep("");
-      setSelectedCase(newCase);
-    }, 4500);
-  };
 
   const stats = {
     totalLeads: cases.length,

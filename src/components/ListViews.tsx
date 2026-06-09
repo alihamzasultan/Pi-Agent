@@ -157,8 +157,6 @@ export const IntakeCasesListView: React.FC<IntakeCasesListProps> = ({ cases, onS
         ) : (
           filteredCases.map((c, i) => {
             const date = c.created_at ? new Date(c.created_at).toLocaleDateString() : "Pending";
-            const isSigned = c.retainer_signed_at || c.docuseal_status === "Completed";
-            const isSent = c.retainer_sent_at || c.docuseal_status === "Sent";
 
             return (
               <div key={i} className="mobile-row-card" onClick={() => onSelectCase(c)}>
