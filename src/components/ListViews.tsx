@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import type { IntakeCase, CallLog, ClioRecord, DocusealRetainer } from "../services/supabase";
-import { Search, Phone, FileText, CheckCircle2, ExternalLink, Play, Pause } from "lucide-react";
+import { Search, Phone, FileText, ExternalLink, Play, Pause } from "lucide-react";
 
 // Helper for rendering viability rings
 export const ViabilityRing: React.FC<{ score: string | number | null }> = ({ score }) => {
@@ -486,7 +486,7 @@ export const ClioRecordsListView: React.FC<ClioRecordsListProps> = ({ clioRecord
               </tr>
             ) : (
               records.map((r, idx) => {
-                const date = formatClioSyncDate(r);
+          
                 const matterStatus = resolveClioMatterStatus(r);
                 return (
                   <tr key={(r as ClioRecord & { row_id?: string }).row_id || r.id || r.call_id || idx}>
@@ -516,9 +516,6 @@ export const ClioRecordsListView: React.FC<ClioRecordsListProps> = ({ clioRecord
                     <td className="col-status">
                       <span className={`badge ${matterStatus.badgeClass}`}>{matterStatus.label}</span>
                     </td>
-                 
-             
-                
                   </tr>
                 );
               })
@@ -533,7 +530,6 @@ export const ClioRecordsListView: React.FC<ClioRecordsListProps> = ({ clioRecord
           <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>No Clio records.</div>
         ) : (
           records.map((r, idx) => {
-            const date = formatClioSyncDate(r);
             const matterStatus = resolveClioMatterStatus(r);
             return (
               <div key={(r as ClioRecord & { row_id?: string }).row_id || r.id || r.call_id || idx} className="mobile-row-card" style={{ cursor: "default" }}>
