@@ -263,7 +263,7 @@ export const App: React.FC = () => {
   const navItems = [
     { id: "dashboard", label: "Dashboard Hub", icon: <LayoutDashboard size={18} /> },
     { id: "cases",     label: "Leads Pipeline", icon: <Users size={18} /> },
-    { id: "calls",     label: "AI Voice Call Logs", icon: <PhoneCall size={18} /> },
+    // { id: "calls",     label: "AI Voice Call Logs", icon: <PhoneCall size={18} /> },
     { id: "clio",      label: "Clio CRM Records", icon: <Link2 size={18} /> },
     { id: "docuseal",  label: "Docuseal Retainers", icon: <FileSignature size={18} /> },
   ] as const;
