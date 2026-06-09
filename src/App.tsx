@@ -373,7 +373,7 @@ export const App: React.FC = () => {
             </div>
 
             {/* Simulate */}
-            <button
+            {/* <button
               className="btn-primary"
               style={{ background: "var(--gradient-indigo-violet)", color: "white", boxShadow: "0 4px 15px rgba(99,102,241,0.2)", whiteSpace: "nowrap" }}
               onClick={handleSimulateCall}
@@ -383,7 +383,7 @@ export const App: React.FC = () => {
               <span className="header-sim-label">
                 {isSimulating ? "Simulating…" : "Simulate Lead"}
               </span>
-            </button>
+            </button> */}
 
             {/* Refresh */}
             <button onClick={loadData} className="btn-secondary" style={{ padding: "9px", borderRadius: "10px", flexShrink: 0 }} title="Refresh">
