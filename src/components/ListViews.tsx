@@ -407,13 +407,7 @@ const resolveClioMatterStatus = (record: ClioRecord): { label: string; badgeClas
   return { label: "Not Created", badgeClass: "badge-danger" };
 };
 
-const formatClioSyncDate = (record: ClioRecord): string => {
-  const raw = record.updated_at || record.created_at;
-  if (!raw) return "—";
-  const cleaned = raw.replace(/\s*\}+\s*$/g, "").trim();
-  const parsed = new Date(cleaned);
-  return Number.isNaN(parsed.getTime()) ? "—" : parsed.toLocaleString();
-};
+
 
 const clioRecordScore = (record: ClioRecord): number => {
   let score = 0;
