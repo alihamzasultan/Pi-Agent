@@ -110,9 +110,6 @@ export const IntakeCasesListView: React.FC<IntakeCasesListProps> = ({ cases, onS
               <th>Contact Info</th>
               <th>Date Ingested</th>
               <th>Viability</th>
-              <th>Liability Status</th>
-              <th>Recommended Action</th>
-              <th>Integrations</th>
             </tr>
           </thead>
           <tbody>
@@ -204,27 +201,9 @@ export const IntakeCasesListView: React.FC<IntakeCasesListProps> = ({ cases, onS
                   </div>
                   <ViabilityRing score={c.viability_score} />
                 </div>
-                <div className="mobile-row-field">
-                  <span className="mobile-row-label">Liability</span>
-                  <span className="mobile-row-value">{c.liability_assessment || "Pending AI"}</span>
-                </div>
-                <div className="mobile-row-field">
-                  <span className="mobile-row-label">Action</span>
-                  <span className="mobile-row-value"><ActionBadge action={c.recommended_action} /></span>
-                </div>
-                <div className="mobile-row-field" style={{ borderBottom: "none" }}>
-                  <span className="mobile-row-label">Status</span>
-                  <div style={{ display: "flex", gap: "6px" }}>
-                    {c.clio_matter_id
-                      ? <span className="badge badge-success">Clio</span>
-                      : <span className="badge badge-danger" style={{ opacity: 0.4 }}>Clio</span>}
-                    {isSigned
-                      ? <span className="badge badge-success">Retained</span>
-                      : isSent
-                        ? <span className="badge badge-warning">Sent</span>
-                        : <span className="badge badge-danger" style={{ opacity: 0.4 }}>Retainer</span>}
-                  </div>
-                </div>
+          
+              
+             
               </div>
             );
           })
