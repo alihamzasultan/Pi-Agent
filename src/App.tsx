@@ -103,17 +103,46 @@ export const App: React.FC = () => {
 
 
 
+  const normalizeStatus = (value?: string | null) =>
+    String(value || "").trim().toLowerCase();
+
+  const signedCases = cases.filter(c => {
+    const status = normalizeStatus(c.docuseal_status);
+    return Boolean(c.retainer_signed_at) || status === "completed" || status === "signed";
+  }).length;
+
+  const sentRetainers = cases.filter(c => {
+    const status = normalizeStatus(c.docuseal_status);
+    return Boolean(c.retainer_sent_at) || status === "sent" || status === "completed" || status === "signed";
+  }).length;
+
+  const clioSyncedCases = cases.filter(c => Boolean(c.clio_matter_id)).length;
+
+  const totalCostNumber = logs.reduce((acc, curr) => {
+    const rawCost = curr.total_cost || curr.cost || "0";
+    const parsedCost = Number.parseFloat(String(rawCost));
+    return acc + (Number.isNaN(parsedCost) ? 0 : parsedCost);
+  }, 0);
+
+  const avgCallCost = logs.length ? totalCostNumber / logs.length : 0;
+
   const stats = {
     totalLeads: cases.length,
-    signedCases: cases.filter(c => c.retainer_signed_at || c.docuseal_status === "Completed").length,
-    evaluating: cases.filter(c => c.extraction_status === "Completed" || c.viability_score).length,
-    clioSyncs: cases.filter(c => c.clio_matter_id).length,
+    signedCases,
+    sentRetainers,
+    clioSyncs: clioSyncedCases,
     activeCalls: logs.length,
-    totalCost: logs.reduce((acc, curr) => acc + parseFloat(curr.total_cost || curr.cost || "0"), 0).toFixed(2)
+    totalCost: totalCostNumber.toFixed(2),
+    avgCallCost: avgCallCost.toFixed(2)
   };
 
-  const conversionRate = stats.totalLeads ? Math.round((stats.signedCases / stats.totalLeads) * 100) : 0;
-  const clioSyncRate = stats.totalLeads ? Math.round((stats.clioSyncs / stats.totalLeads) * 100) : 0;
+  const conversionRate = stats.totalLeads
+    ? Math.round((stats.signedCases / stats.totalLeads) * 100)
+    : 0;
+
+  const clioSyncRate = stats.totalLeads
+    ? Math.round((stats.clioSyncs / stats.totalLeads) * 100)
+    : 0;
 
   const navItems = [
     { id: "dashboard", label: "Dashboard Hub", icon: <LayoutDashboard size={18} /> },
@@ -278,10 +307,34 @@ export const App: React.FC = () => {
                 <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                   {/* KPI Grid */}
                   <div className="kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px" }}>
-                    <KPICard title="Total Leads Ingested" value={stats.totalLeads} icon="Users" trend={{ value: "18% this wk", positive: true }} glowColor="rgba(0,242,254,0.12)" />
-                    <KPICard title="Signed Cases" value={`${stats.signedCases} (${conversionRate}%)`} icon="FileSignature" trend={{ value: "4.2% change", positive: true }} glowColor="rgba(16,185,129,0.12)" />
-                    <KPICard title="Clio CRM Sync Rate" value={`${stats.clioSyncs} (${clioSyncRate}%)`} icon="Link2" trend={{ value: "100% success", positive: true }} glowColor="rgba(79,172,254,0.12)" />
-                    <KPICard title="Vapi Billing Total" value={`$${stats.totalCost}`} icon="PhoneCall" trend={{ value: "Avg $0.56/call", positive: true }} glowColor="rgba(139,92,246,0.12)" />
+                    <KPICard
+                      title="Total Leads Ingested"
+                      value={stats.totalLeads}
+                      icon="Users"
+                      trend={{ value: "Live Supabase", positive: true }}
+                      glowColor="rgba(0,242,254,0.12)"
+                    />
+                    <KPICard
+                      title="Signed Cases"
+                      value={`${stats.signedCases} (${conversionRate}%)`}
+                      icon="FileSignature"
+                      trend={{ value: `${stats.sentRetainers} retainers sent`, positive: true }}
+                      glowColor="rgba(16,185,129,0.12)"
+                    />
+                    <KPICard
+                      title="Clio CRM Sync Rate"
+                      value={`${stats.clioSyncs} (${clioSyncRate}%)`}
+                      icon="Link2"
+                      trend={{ value: `${stats.clioSyncs}/${stats.totalLeads} leads synced`, positive: true }}
+                      glowColor="rgba(79,172,254,0.12)"
+                    />
+                    <KPICard
+                      title="Vapi Billing Total"
+                      value={`$${stats.totalCost}`}
+                      icon="PhoneCall"
+                      trend={{ value: `Avg $${stats.avgCallCost}/call`, positive: true }}
+                      glowColor="rgba(139,92,246,0.12)"
+                    />
                   </div>
 
                   <AnalyticsCharts cases={cases} />
