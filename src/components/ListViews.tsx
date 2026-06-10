@@ -73,11 +73,11 @@ export const IntakeCasesListView: React.FC<IntakeCasesListProps> = ({ cases, onS
 
   return (
     <div className="glass-card table-responsive" style={{ padding: "24px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "16px" }}>
-        <h2 style={{ fontSize: "1.25rem", color: "var(--text-primary)" }}>Intake Pipeline Leads</h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px", flexWrap: "wrap", gap: "16px" }}>
+        <h2 style={{ fontSize: "clamp(1rem, 3vw, 1.25rem)", color: "var(--text-primary)", flex: "1 1 160px", minWidth: 0 }}>Intake Pipeline Leads</h2>
 
-        <div className="search-row" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-          <div className="search-container" style={{ width: "240px" }}>
+        <div className="lv-search-row">
+          <div className="search-container lv-search-field">
             <Search className="search-icon" size={16} />
             <input
               type="text" placeholder="Search leads..."
@@ -86,8 +86,8 @@ export const IntakeCasesListView: React.FC<IntakeCasesListProps> = ({ cases, onS
             />
           </div>
           <select
-            className="search-input"
-            style={{ width: "160px", paddingLeft: "12px" }}
+            className="search-input lv-select"
+            style={{ paddingLeft: "12px" }}
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
           >
@@ -682,3 +682,34 @@ export const DocusealRetainersListView: React.FC<DocusealRetainersListProps> = (
     </div>
   );
 };
+
+/* ── Shared list-view responsive styles injected once ── */
+const _lvStyles = `
+  .lv-search-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    flex: 1 1 260px;
+    min-width: 0;
+  }
+  .lv-search-field {
+    flex: 1 1 180px;
+    min-width: 130px;
+  }
+  .lv-select {
+    flex: 0 1 160px;
+    min-width: 120px;
+    width: 100%;
+  }
+  @media (max-width: 520px) {
+    .lv-search-row { flex-direction: column; }
+    .lv-search-field, .lv-select { flex: 1 1 auto; min-width: 0; }
+  }
+`;
+
+if (typeof document !== 'undefined' && !document.getElementById('lv-shared-styles')) {
+  const s = document.createElement('style');
+  s.id = 'lv-shared-styles';
+  s.textContent = _lvStyles;
+  document.head.appendChild(s);
+}

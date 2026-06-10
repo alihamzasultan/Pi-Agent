@@ -6,11 +6,12 @@ import AnalyticsCharts from "./components/AnalyticsCharts";
 import RetainerAgreementDashboard from "./components/RetainerAgreementDashboard";
 import { IntakeCasesListView, CallLogsListView, ClioRecordsListView, DocusealRetainersListView } from "./components/ListViews";
 import CaseDetailDrawer from "./components/CaseDetailDrawer";
+import LoginScreen from "./components/LoginScreen";
 import {
   LayoutDashboard, Users, Link2, FileSignature,
   Database, PhoneCall as PhoneIcon,
   RefreshCw, AlertCircle, Sparkles, Menu, X as CloseIcon,
-  Sun, Moon
+  Sun, Moon, LogOut, UserCircle
 } from "lucide-react";
 
 type Theme = "light" | "dark";
@@ -22,6 +23,22 @@ const getInitialTheme = (): Theme => {
 };
 
 export const App: React.FC = () => {
+  // ── Auth ──────────────────────────────────────────────────────────────
+  const [loggedInUser, setLoggedInUser] = useState<string | null>(() => {
+    return sessionStorage.getItem("hl-user") || null;
+  });
+
+  const handleLogin = (username: string) => {
+    sessionStorage.setItem("hl-user", username);
+    setLoggedInUser(username);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("hl-user");
+    setLoggedInUser(null);
+  };
+  // ──────────────────────────────────────────────────────────────────────
+
   const [activeTab, setActiveTab] = useState<"dashboard" | "cases" | "calls" | "clio" | "docuseal">("dashboard");
   const [cases, setCases] = useState<IntakeCase[]>([]);
   const [logs, setLogs] = useState<CallLog[]>([]);
@@ -157,6 +174,12 @@ export const App: React.FC = () => {
     setSidebarOpen(false);
   };
 
+  // ── Gate: show login if not authenticated ───────────────────────────
+  if (!loggedInUser) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+  // ──────────────────────────────────────────────────────────────────────
+
   return (
     <div className="app-container">
 
@@ -261,6 +284,18 @@ export const App: React.FC = () => {
             {/* Refresh */}
             <button onClick={loadData} className="btn-secondary" style={{ padding: "9px", borderRadius: "10px", flexShrink: 0 }} title="Refresh">
               <RefreshCw size={14} className={isLoading ? "animate-spin" : ""} style={isLoading ? { animation: "spin 1.5s linear infinite" } : undefined} />
+            </button>
+
+            {/* Logged-in user + Logout */}
+            <button
+              id="logout-btn"
+              className="login-user-badge"
+              onClick={handleLogout}
+              title="Logout"
+            >
+              <UserCircle size={15} style={{ color: "var(--accent-teal)", flexShrink: 0 }} />
+              <span style={{ maxWidth: "80px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{loggedInUser}</span>
+              <LogOut size={13} style={{ flexShrink: 0 }} />
             </button>
           </div>
         </header>

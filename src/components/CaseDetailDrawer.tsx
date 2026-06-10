@@ -138,6 +138,51 @@ export const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({
           from { transform: translateX(100%); }
           to { transform: translateX(0); }
         }
+        .drawer-tab-row {
+          display: flex;
+          border-bottom: 1px solid var(--border-color);
+          margin-bottom: 20px;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          gap: 0;
+        }
+        .drawer-tab-row::-webkit-scrollbar { display: none; }
+        .drawer-tab-btn {
+          flex-shrink: 0;
+          padding: 10px 14px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: clamp(0.8rem, 2vw, 0.9rem);
+          font-weight: 600;
+          white-space: nowrap;
+          transition: color 0.2s ease, border-color 0.2s ease;
+        }
+        .drawer-incident-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+          gap: 14px;
+          font-size: 0.85rem;
+          margin-bottom: 12px;
+        }
+        .drawer-footer-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        .drawer-action-row {
+          display: flex;
+          gap: 12px;
+        }
+        @media (max-width: 540px) {
+          .drawer-footer-grid {
+            grid-template-columns: 1fr;
+          }
+          .drawer-action-row {
+            flex-direction: column;
+          }
+        }
       `}</style>
 
       {/* Header */}
@@ -191,47 +236,32 @@ export const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({
         )}
 
         {/* Tab Controls */}
-        <div style={{ display: "flex", borderBottom: "1px solid var(--border-color)", marginBottom: "20px" }}>
-          <button 
-            style={{ 
-              padding: "10px 16px", 
-              background: "none", 
-              border: "none", 
-              color: activeTab === "memo" ? "var(--accent-teal)" : "var(--text-secondary)", 
-              borderBottom: activeTab === "memo" ? "2px solid var(--accent-teal)" : "none", 
-              cursor: "pointer", 
-              fontSize: "0.9rem",
-              fontWeight: 600
+        <div className="drawer-tab-row">
+          <button
+            className="drawer-tab-btn"
+            style={{
+              color: activeTab === "memo" ? "var(--accent-teal)" : "var(--text-secondary)",
+              borderBottom: activeTab === "memo" ? "2px solid var(--accent-teal)" : "2px solid transparent",
             }}
             onClick={() => setActiveTab("memo")}
           >
             AI Evaluation Memo
           </button>
-          <button 
-            style={{ 
-              padding: "10px 16px", 
-              background: "none", 
-              border: "none", 
-              color: activeTab === "transcript" ? "var(--accent-teal)" : "var(--text-secondary)", 
-              borderBottom: activeTab === "transcript" ? "2px solid var(--accent-teal)" : "none", 
-              cursor: "pointer", 
-              fontSize: "0.9rem",
-              fontWeight: 600
+          <button
+            className="drawer-tab-btn"
+            style={{
+              color: activeTab === "transcript" ? "var(--accent-teal)" : "var(--text-secondary)",
+              borderBottom: activeTab === "transcript" ? "2px solid var(--accent-teal)" : "2px solid transparent",
             }}
             onClick={() => setActiveTab("transcript")}
           >
             Interactive Transcript
           </button>
-          <button 
-            style={{ 
-              padding: "10px 16px", 
-              background: "none", 
-              border: "none", 
-              color: activeTab === "integrations" ? "var(--accent-teal)" : "var(--text-secondary)", 
-              borderBottom: activeTab === "integrations" ? "2px solid var(--accent-teal)" : "none", 
-              cursor: "pointer", 
-              fontSize: "0.9rem",
-              fontWeight: 600
+          <button
+            className="drawer-tab-btn"
+            style={{
+              color: activeTab === "integrations" ? "var(--accent-teal)" : "var(--text-secondary)",
+              borderBottom: activeTab === "integrations" ? "2px solid var(--accent-teal)" : "2px solid transparent",
             }}
             onClick={() => setActiveTab("integrations")}
           >
@@ -249,7 +279,7 @@ export const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({
                 <FileText size={16} style={{ color: "var(--accent-blue)" }} />
                 Incident Overview
               </h3>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", fontSize: "0.85rem", marginBottom: "12px" }}>
+              <div className="drawer-incident-grid">
                 <div>
                   <span style={{ color: "var(--text-muted)" }}>Accident Date:</span>
                   <p style={{ color: "var(--text-primary)", fontWeight: 500, marginTop: "2px" }}>{caseItem.accident_date || "Not Provided"}</p>
@@ -519,7 +549,7 @@ export const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({
       <div style={{ padding: "20px 24px", borderTop: "1px solid var(--border-color)", background: "rgba(0,0,0,0.3)", display: "flex", flexDirection: "column", gap: "16px" }}>
         
         {/* Sliders and dropdown filters */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div className="drawer-footer-grid">
           <div>
             <label style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 600, display: "block", marginBottom: "6px" }}>
               Case Action
@@ -552,7 +582,7 @@ export const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({
         </div>
 
         {/* Integration Trigger Buttons */}
-        <div style={{ display: "flex", gap: "12px" }}>
+        <div className="drawer-action-row">
           {!caseItem.clio_matter_id ? (
             <button 
               className="btn-primary" 

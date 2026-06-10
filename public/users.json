@@ -1,0 +1,12 @@
+[
+  {
+    "username": "admin",
+    "email": "admin@harringtonlaw.com",
+    "password": "Admin123!"
+  },
+  {
+    "username": "staff",
+    "email": "staff@harringtonlaw.com",
+    "password": "Staff2024"
+  }
+]

@@ -51,7 +51,7 @@ export const KPICard: React.FC<KPICardProps> = ({
           <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
             {title}
           </span>
-          <h2 style={{ fontSize: "2rem", marginTop: "4px", color: "var(--text-primary)", fontWeight: 700 }}>
+          <h2 style={{ fontSize: "clamp(1.4rem, 4vw, 2rem)", marginTop: "4px", color: "var(--text-primary)", fontWeight: 700 }}>
             {value}
           </h2>
         </div>

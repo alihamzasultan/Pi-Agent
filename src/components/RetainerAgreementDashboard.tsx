@@ -94,7 +94,7 @@ export const RetainerAgreementDashboard: React.FC<Props> = ({ cases, onSelectCas
             Personal Injury Firm Retainer Agreement
           </h2>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", fontSize: "0.85rem" }}>
+        <div className="firm-info-grid">
           <div>
             <span style={{ color: "var(--text-muted)", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Law Firm / Attorney</span>
             <p style={{ color: "var(--text-primary)", fontWeight: 600, margin: "4px 0 0" }}>{FIRM_INFO.name}</p>
@@ -283,3 +283,23 @@ export const RetainerAgreementDashboard: React.FC<Props> = ({ cases, onSelectCas
 };
 
 export default RetainerAgreementDashboard;
+
+/* Inject firm-info responsive styles once */
+if (typeof document !== 'undefined' && !document.getElementById('rad-styles')) {
+  const s = document.createElement('style');
+  s.id = 'rad-styles';
+  s.textContent = `
+    .firm-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      font-size: 0.85rem;
+    }
+    @media (max-width: 480px) {
+      .firm-info-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  `;
+  document.head.appendChild(s);
+}
