@@ -562,10 +562,7 @@ export const DocusealRetainersListView: React.FC<DocusealRetainersListProps> = (
           <thead>
             <tr>
               <th>Client Name</th>
-              <th>Client Email</th>
-              <th>Submission ID</th>
               <th>Status</th>
-              <th>Sent At</th>
               <th>Signed At</th>
               <th>Signed Retainer</th>
             </tr>
@@ -581,13 +578,10 @@ export const DocusealRetainersListView: React.FC<DocusealRetainersListProps> = (
               retainers.map((retainer, idx) => {
                 const ret = retainer as DocusealRetainerRow;
 
-                const submissionId = ret.docuseal_submission_id || ret.submission_id || "—";
                 const status = ret.docuseal_status || ret.status || "Pending";
                 const documentUrl = ret.docuseal_document_url || ret.document_url || "";
-                const sentAt = ret.retainer_sent_at || ret.sent_at || "";
                 const signedAt = ret.retainer_signed_at || ret.completed_at || "";
 
-                const sentDate = sentAt ? new Date(sentAt).toLocaleString() : "—";
                 const signDate = signedAt ? new Date(signedAt).toLocaleString() : "—";
                 const badgeClass = getRetainerStatusBadgeClass(String(status));
 
@@ -596,14 +590,11 @@ export const DocusealRetainersListView: React.FC<DocusealRetainersListProps> = (
                     <td>
                       <span style={{ fontWeight: 600 }}>{ret.client_name || "Unknown"}</span>
                     </td>
-                    <td style={{ fontSize: "0.85rem" }}>{ret.client_email || "—"}</td>
-                    <td style={{ fontSize: "0.85rem", fontFamily: "monospace", color: "var(--text-muted)" }}>
-                      {submissionId}
-                    </td>
+                  
+                
                     <td>
                       <span className={`badge ${badgeClass}`}>{status}</span>
                     </td>
-                    <td style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>{sentDate}</td>
                     <td style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>{signDate}</td>
                     <td>
                       {documentUrl ? (
@@ -642,10 +633,9 @@ export const DocusealRetainersListView: React.FC<DocusealRetainersListProps> = (
 
             const status = ret.docuseal_status || ret.status || "Pending";
             const documentUrl = ret.docuseal_document_url || ret.document_url || "";
-            const sentAt = ret.retainer_sent_at || ret.sent_at || "";
             const signedAt = ret.retainer_signed_at || ret.completed_at || "";
 
-            const sentDate = sentAt ? new Date(sentAt).toLocaleString() : "—";
+      
             const signDate = signedAt ? new Date(signedAt).toLocaleString() : "—";
             const badgeClass = getRetainerStatusBadgeClass(String(status));
 
@@ -656,12 +646,6 @@ export const DocusealRetainersListView: React.FC<DocusealRetainersListProps> = (
                   <span className={`badge ${badgeClass}`}>{status}</span>
                 </div>
 
-                <div className="mobile-row-field">
-                  <span className="mobile-row-label">Email</span>
-                  <span className="mobile-row-value" style={{ fontSize: "0.8rem" }}>
-                    {ret.client_email || "—"}
-                  </span>
-                </div>
 
                 <div className="mobile-row-field">
                   <span className="mobile-row-label">Submission ID</span>
@@ -670,10 +654,7 @@ export const DocusealRetainersListView: React.FC<DocusealRetainersListProps> = (
                   </span>
                 </div>
 
-                <div className="mobile-row-field">
-                  <span className="mobile-row-label">Sent</span>
-                  <span className="mobile-row-value" style={{ fontSize: "0.8rem" }}>{sentDate}</span>
-                </div>
+      
 
                 <div className="mobile-row-field">
                   <span className="mobile-row-label">Signed</span>
