@@ -173,7 +173,7 @@ export const App: React.FC = () => {
             <Sparkles size={20} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontSize: "1.05rem", fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>Harrington Law</h1>
+            <h1 style={{ fontSize: "1.05rem", fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>Personal Injury Law</h1>
             <span style={{ fontSize: "0.65rem", color: "var(--accent-teal)", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600 }}>PI Intake AI Suite</span>
           </div>
           {/* Close button visible on mobile */}
